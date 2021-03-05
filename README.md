@@ -1,76 +1,105 @@
-![kratos](docs/img/kratos3.png)
+![kratos](docs/images/kratos.png) 
 
 [![Language](https://img.shields.io/badge/Language-Go-blue.svg)](https://golang.org/)
 [![Build Status](https://github.com/go-kratos/kratos/workflows/Go/badge.svg)](https://github.com/go-kratos/kratos/actions)
-[![GoDoc](https://godoc.org/github.com/go-kratos/kratos?status.svg)](https://godoc.org/github.com/go-kratos/kratos)
-[![Go Report Card](https://goreportcard.com/badge/github.com/go-kratos/kratos)](https://goreportcard.com/report/github.com/go-kratos/kratos)
+[![GoDoc](https://pkg.go.dev/badge/github.com/go-kratos/kratos/v2)](https://pkg.go.dev/github.com/go-kratos/kratos/v2)
+[![Go Report Card](https://goreportcard.com/badge/github.com/go-kratos/kratos/v2)](https://goreportcard.com/report/github.com/go-kratos/kratos/v2)
 [![Discord](https://img.shields.io/discord/766619759214854164?label=chat&logo=discord)](https://discord.gg/BWzJsUJ)
 
+Translations: [English](README.md) | [简体中文](README_zh.md)
+
 # Kratos
+Kratos is a microservice-oriented governance framework implements by golang, which offers convenient capabilities to help you quickly build a bulletproof application from scratch.
 
-Kratos是[bilibili](https://www.bilibili.com)开源的一套Go微服务框架，包含大量微服务相关框架及工具。  
 
-> 名字来源于:《战神》游戏以希腊神话为背景，讲述由凡人成为战神的奎托斯（Kratos）成为战神并展开弑神屠杀的冒险历程。
+>The name is inspired by the game God of War which is based on Greek myths, tells the Kratos from mortals to become a God of War and launches the adventure of killing god.
+
 
 ## Goals
 
-我们致力于提供完整的微服务研发体验，整合相关框架及工具后，微服务治理相关部分可对整体业务开发周期无感，从而更加聚焦于业务交付。对每位开发者而言，整套Kratos框架也是不错的学习仓库，可以了解和参考到[bilibili](https://www.bilibili.com)在微服务方面的技术积累和经验。
+Kratos boosts your productivity. With the integration of excellent resources and further support, programmers can get rid of most issues might encounter in the field of distributed systems and software engineering such that they are allowed to focus on the release of businesses only. Additionally, for each programmer, Kratos is also an ideal one learning warehouse for many aspects of microservices to enrich their experiences and skills.
+### Principles
+
+* **Simple**: Appropriate design, plain and easy code.
+* **General**: Cover the various utilities for business development.
+* **Highly efficient**: Speeding up the efficiency of businesses upgrading.
+* **Stable**: The base libs validated in the production environment which have the characters of the high testability, high coverage as well as high security and reliability.
+* **Robust**: Eliminating misusing through high quality of the base libs.
+* **High-performance**: Optimal performance excluding the optimization of hacking in case of *unsafe*. 
+* **Expandability**: Properly designed interfaces, you can expand utilities such as base libs to meet your further requirements.
+* **Fault-tolerance**: Designed against failure, enhance the understanding and exercising of SRE within Kratos to achieve more robustness.
+* **Toolchain**: Includes an extensive toolchain, such as the code generation of cache, the lint tool, and so forth.
 
 ## Features
-* HTTP Blademaster：核心基于[gin](https://github.com/gin-gonic/gin)进行模块化设计，简单易用、核心足够轻量；
-* GRPC Warden：基于官方gRPC开发，集成[discovery](https://github.com/bilibili/discovery)服务发现，并融合P2C负载均衡；
-* Cache：优雅的接口化设计，非常方便的缓存序列化，推荐结合代理模式[overlord](https://github.com/bilibili/overlord)；
-* Database：集成MySQL/HBase/TiDB，添加熔断保护和统计支持，可快速发现数据层压力；
-* Config：方便易用的[paladin sdk](https://go-kratos.github.io/kratos/#/config)，可配合远程配置中心，实现配置版本管理和更新；
-* Log：类似[zap](https://github.com/uber-go/zap)的field实现高性能日志库，并结合log-agent实现远程日志管理；
-* Trace：基于opentracing，集成了全链路trace支持（gRPC/HTTP/MySQL/Redis/Memcached）；
-* Kratos Tool：工具链，可快速生成标准项目，或者通过Protobuf生成代码，非常便捷使用gRPC、HTTP、swagger文档；
+* APIs: The communication protocol is based on the HTTP/gRPC through the definition of Protobuf.
+* Errors: Both the definitions of error code and the handle interfaces of code generation for tools are defined by the Enum of the Protobuf.
+* Metadata: In the protocol of HTTP/gRPC, the transmission of service atomic information are formalized by the Middleware.
+* Config: Multiple data sources are supported for configurations and integrations such that dynamic configurations are offered through the manner of *Atomic* operations.
+* Logger: The standard log interfaces ease the integration of the third-party log libs and logs are collected through the *Fluentd*.
+* Metrics: *Prometheus* integrated by default. Furthermore, with the uniform metric interfaces, you can implement your own metric system more flexible.
+* Tracing: The OpenTracing is conformed to achieve the tracing of microservices chains.
+* Encoding: The selection of the content encoding is automatically supported by Accept and Content-Type.
+* Transport: The uniform plugins for Middleware are supported by HTTP/gRPC.
+ * Registry: The interfaces of the centralized registry is able to be connected with various other centralized registries through plug-ins.
 
-## Quick start
+## Getting Started
+### Required
+- [go](https://golang.org/dl/)
+- [protoc](https://github.com/protocolbuffers/protobuf)
+- [protoc-gen-go](https://github.com/protocolbuffers/protobuf-go)
 
-### Requirments
+### Installing
+```
+go get github.com/go-kratos/kratos/cmd/kratos/v2@latest
+```
+### Create a service
+```
+# create project template
+kratos new helloworld
 
-Go version>=1.13
+cd helloworld
+# generate Proto template
+kratos proto add api/helloworld/helloworld.proto
+# generate Proto source code
+kratos proto client api/helloworld/helloworld.proto
+# generate server template
+kratos proto server api/helloworld/helloworld.proto -t internal/service
 
-### Installation
-```shell
-# Linux/macOS
-GO111MODULE=on && go get -u github.com/go-kratos/kratos/tool/kratos
-
-# Windows (Powershell)
-go env -w GO111MODULE=on ; go get -u github.com/go-kratos/kratos/tool/kratos
-
-# Windows (CMD)
-go env -w GO111MODULE=on && go get -u github.com/go-kratos/kratos/tool/kratos
-
-cd $GOPATH/src
-kratos new kratos-demo
+# Generate all proto source code, wire, etc.
+go generate ./...
+# compile
+go build -o ./bin/ ./...
+# run
+./bin/helloworld -conf ./configs
 ```
 
-通过 `kratos new` 会快速生成基于kratos库的脚手架代码，如生成 [kratos-demo](https://github.com/bilibili/kratos-demo) 
+### Kratos Boot
+```
+import "github.com/go-kratos/kratos/v2"
+import "github.com/go-kratos/kratos/v2/transport/grpc"
+import "github.com/go-kratos/kratos/v2/transport/http"
 
-### Build & Run
+httpSrv := http.NewServer(http.Address(":8000"))
+grpcSrv := grpc.NewServer(grpc.Address(":9000"))
 
-```shell
-cd kratos-demo/cmd
-go build
-./cmd -conf ../configs
+app := kratos.New(
+    kratos.Name("kratos"),
+    kratos.Version("latest"),
+    kratos.Server(httpSrv, grpcSrv),
+)
+app.Run()
 ```
 
-打开浏览器访问：[http://localhost:8000/kratos-demo/start](http://localhost:8000/kratos-demo/start)，你会看到输出了`Golang 大法好 ！！！`
+## Related
 
-[快速开始](https://go-kratos.github.io/kratos/#/quickstart)  [kratos工具](https://go-kratos.github.io/kratos/#/kratos-tool)
+* [Docs](https://go-kratos.dev/)
+* [Examples](https://github.com/go-kratos/examples)
+* [Service Layout](https://github.com/go-kratos/kratos-layout)
 
-## Documentation
-
-> [简体中文](https://go-kratos.github.io/kratos)  
-> [简体中文（国内镜像）](https://go-kratos.gitee.io/kratos/)  
-> [FAQ](https://go-kratos.github.io/kratos/#/FAQ)  
+## Community
+* [Wechat Group](https://github.com/go-kratos/kratos/issues/682)
+* [Discord Group](https://discord.gg/BWzJsUJ)
+* QQ Group: 716486124
 
 ## License
-Kratos is under the MIT license. See the [LICENSE](./LICENSE) file for details.
-
--------------
-
-*Please report bugs, concerns, suggestions by issues, on [Discord Group](https://discord.gg/BWzJsUJ)
- or join QQ-group 716486124 to discuss problems around source code.*
+Kratos is MIT licensed. See the [LICENSE](./LICENSE) file for details.
